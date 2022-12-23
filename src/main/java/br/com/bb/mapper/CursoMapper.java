@@ -30,6 +30,8 @@ public class CursoMapper {
         return  CursoResponse.builder()
                     .id(entity.getId())
                     .name(entity.getName())
+                    .description(entity.getDescription())
+                    .duration(entity.getDuration())
                     .build();
     }
 
