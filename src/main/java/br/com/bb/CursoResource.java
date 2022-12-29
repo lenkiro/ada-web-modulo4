@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -23,12 +24,14 @@ import javax.ws.rs.core.Response.Status;
 import br.com.bb.dto.CursoRequest;
 import br.com.bb.mapper.CursoMapper;
 import br.com.bb.service.CursoService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Path("/curso")
 @Slf4j
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequiredArgsConstructor
 public class CursoResource {
 
     
@@ -59,15 +62,12 @@ public class CursoResource {
     }
 
     
+    @GET
+    public Response list() {
+        final var response = service.retrieveAll();
 
-    // @GET
-    // @Path("/mensagem")
-    // public Response mensagem(){
-    //     return Response.ok(mensagem)
-    //             .
-    // }
-
-    // !
+        return Response.ok(response).build();
+    }
 
     @GET
     @Path("/{id}")
@@ -117,7 +117,16 @@ public class CursoResource {
         return Response.ok(response).build();
     }
 
+    @PATCH
+    @Path("/{id}/titular/{idProfessor}")
+    public Response updateTitular(@PathParam("id") int idCurso, @PathParam("idProfessor") int idProfessor) {
+        final var response = service.updateTitular(idCurso, idProfessor);
 
+        return Response
+                .status(Response.Status.CREATED)
+                .entity(response)
+                .build();
+    }
 
 
 

@@ -6,11 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -31,6 +34,14 @@ public class Professor{
 
     @Column(name = "professor_name", nullable = false)
     private String name;
+
+    @Column(name = "data_atualizacao", nullable = false)
+    private LocalDateTime dateTime;
+
+    @PrePersist
+    public void prePersist(){
+        setDateTime(LocalDateTime.now());
+    }
 
     
 }

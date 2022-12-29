@@ -1,6 +1,7 @@
 package br.com.bb.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,10 @@ import lombok.NoArgsConstructor;
     @NoArgsConstructor
     @JsonIgnoreProperties
 public class ErrorMessage {
-    String message;
+    
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String message;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String field;
 }

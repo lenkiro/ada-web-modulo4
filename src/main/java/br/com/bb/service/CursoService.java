@@ -1,17 +1,22 @@
 package br.com.bb.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import javax.ws.rs.GET;
 
 import br.com.bb.dto.CursoRequest;
 import br.com.bb.dto.CursoResponse;
+import br.com.bb.dto.TitularResponse;
+import br.com.bb.exception.InvalidStateException;
 import br.com.bb.mapper.CursoMapper;
 import br.com.bb.model.Curso;
 import br.com.bb.repository.CursoRepository;
+import br.com.bb.repository.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class CursoService {
     
     private final CursoRepository repo;
     private final CursoMapper mapper;
+    private final ProfessorRepository profRepo;
 
     public CursoResponse getById(int id) {
         log.info("Getting curso id-{}", id);
@@ -82,4 +88,55 @@ public class CursoService {
         log.info("Deleting curso id - {}", id);
         repo.findByIdOptional(id).ifPresent(repo::delete);
     }
+
+    @Transactional
+    public TitularResponse updateTitular(int idDisciplina, int idProfessor) {
+
+        log.info("Updating titular disciplina-id: {}, professor-id: {}", idDisciplina, idProfessor);
+
+        //find entities
+        var disciplina = repo.findById(idDisciplina);
+        var professor = profRepo.findById(idProfessor);
+
+        //validate is not empty
+        if (Objects.isNull(disciplina)) throw new EntityNotFoundException("Disciplina not found");
+        if (Objects.isNull(professor)) throw new EntityNotFoundException("Professor not found");
+
+        //verify if Professor has no Disciplina
+        var query = repo.find("titular", professor);
+        if (query.count() > 0) throw new InvalidStateException("Professor must have at most one Disciplina as titular");
+
+
+        //Update
+        disciplina.setTitular(professor);
+        repo.persist(disciplina);
+
+        return mapper.toResponse(professor);
+    }
+
+    public CursoResponse getDisciplinaByProfessorId(int idProfessor) {
+
+        log.info("Getting disciplina by professor-id: {}", idProfessor);
+
+        var professor = profRepo.findById(idProfessor);
+        if (Objects.isNull(professor)) throw new EntityNotFoundException("Professor not found");
+
+        var query = repo.find("titular", professor);
+        if (query.count() == 0) throw new EntityNotFoundException("Disciplina not found");
+        if (query.count() > 1) throw new InvalidStateException("Professor must have at most one Disciplina as titular");
+
+        var disciplina = query.singleResult();
+
+        return mapper.toResponse(disciplina);
+
+    }
+
+    @GET
+    public List<CursoResponse> retrieveAll() {
+
+        log.info("listing cursos");
+        final var resposts = repo.listAll();
+        return mapper.toResponse(resposts);
+    }
 }
+

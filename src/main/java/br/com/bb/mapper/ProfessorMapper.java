@@ -7,6 +7,7 @@ import br.com.bb.dto.ProfessorRequest;
 import br.com.bb.dto.ProfessorResponse;
 import br.com.bb.model.Professor;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,9 +29,11 @@ public class ProfessorMapper {
         //if (Objects.isNull(entity)) return null;
         Objects.requireNonNull(entity, "Deu erro - entidade nula");
 
+        var formatter = DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm:ss");
         return  ProfessorResponse.builder()
                     .id(entity.getId())
                     .name(entity.getName())
+                    .dateTime(formatter.format(entity.getDateTime()))
                     .build();
     }
 

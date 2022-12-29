@@ -8,15 +8,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties
-@Builder
-public class CursoResponse {
-    private int id;
-    private String name;
-    private String description;
-    private int duration;
+public class TitularResponse {
     private String titular;
 
+    private String atualizacao;
 }
