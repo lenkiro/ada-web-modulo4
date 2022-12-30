@@ -1,11 +1,5 @@
 package br.com.bb;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
@@ -22,7 +16,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import br.com.bb.dto.CursoRequest;
-import br.com.bb.mapper.CursoMapper;
 import br.com.bb.service.CursoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

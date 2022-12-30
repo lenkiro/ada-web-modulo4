@@ -7,19 +7,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import br.com.bb.dto.ProfessorRequest;
+import br.com.bb.service.AlunoService;
+import br.com.bb.service.CursoService;
 import br.com.bb.service.ProfessorService;
+import lombok.RequiredArgsConstructor;
 
 @Path("/professores")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RequiredArgsConstructor
 public class ProfessorResource {
 
     private final ProfessorService service;
-
-    @Inject
-    public ProfessorResource(ProfessorService service) {
-        this.service = service;
-    }
+    private final CursoService cursoService;
+    private final AlunoService alunoService;
+    
 
 
     @GET
@@ -69,5 +71,21 @@ public class ProfessorResource {
         return Response
                 .status(Response.Status.NO_CONTENT)
                 .build();
+    }
+
+    @GET
+    @Path("/{id}/curso")
+    public Response getCurso(@PathParam("id") int id){
+        return Response
+        .ok(cursoService.getDisciplinaByProfessorId(id))
+        .build();
+    }
+
+    @GET
+    @Path("/{id}/tutorados")
+    public Response getTutorados(@PathParam("id") int id){
+        return Response
+            .ok(alunoService.getTutoradosByProfessorId(id))
+            .build();
     }
 }

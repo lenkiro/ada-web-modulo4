@@ -1,131 +1,73 @@
 package br.com.bb;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.com.bb.dto.AlunoRequest;
+import br.com.bb.dto.ErrorResponse;
+import br.com.bb.service.AlunoService;
+import lombok.RequiredArgsConstructor;
 
-import br.com.bb.dto.AlunoDto;
 
 
-
-@Path("/aluno")
+@Path("/alunos")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@RequiredArgsConstructor
 public class AlunoResource {
 
+    private final AlunoService service;
 
-    
+    @GET
+    public Response list() {
+        final var response = service.retrieveAll();
 
-    private static final Logger log = LoggerFactory.getLogger(AlunoResource.class);
-
-    private final Map<Integer, AlunoDto> mapAlunos = new HashMap<>();
-
+        return Response.ok(response).build();
+    }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveAluno(AlunoDto aluno){
-        mapAlunos.put(aluno.getId(), aluno);
-        return Response
-            .status(Response.Status.CREATED)
-            .build();
-    }
+    public Response save(final AlunoRequest request) {
+        try {
+            final var response = service.save(request);
 
-    @Path("/no")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    
-    public String showStudent(){
-        return " guy";
-    }
+            return Response
+                    .status(Response.Status.CREATED)
+                    .entity(response)
+                    .build();
 
-    @GET
-    public Response listingAluno(){
-        log.info("Listing Alunos");
-        List<AlunoDto> alunoDtoList = new ArrayList<>(mapAlunos.values());
-        return Response
-                .ok(alunoDtoList)
-                .build();
+        } catch(ConstraintViolationException e) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(ErrorResponse.createFromValidation(e))
+                    .build();
+        }
     }
 
     @GET
     @Path("/{id}")
-    public Response getAluno(@PathParam("id") int id){
-        log.info("Getting aluno {}", id);
-        var aluno = mapAlunos.get(id);
-        
-        if(Objects.isNull(aluno)){
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .build();
-        }
-        else{
-            return Response
-                .ok(aluno)
-                .build();
-        }
+    public Response getById(@PathParam("id") int id) {
+
+        final var response = service.getById(id);
+
+        return Response.ok(response).build();
     }
 
-    @DELETE
-    @Path("/{id}")
-    public Response removeAluno(@PathParam("id") int id){
-        log.info("remove aluno {}", id);
-        var aluno = mapAlunos.get(id);
-        
-        if(Objects.isNull(aluno)){
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .build();
-        }
-        else{
-            mapAlunos.remove(id);
-            return Response
-                .status(Response.Status.NO_CONTENT)
-                .build();
-        }
-    }
+    @PATCH
+    @Path("/{id}/tutor/{idProfessor}")
+    public Response updateTitular(@PathParam("id") int idAluno, @PathParam("idProfessor") int idProfessor) {
+        final var response = service.updateTutor(idAluno, idProfessor);
 
-    @PUT
-    @Path("{id}")
-    public Response updateAluno(@PathParam("id") int id, AlunoDto alunoNovo){
-        log.info("updating aluno", id);
-        var alunoVelho = mapAlunos.get(id);
-        
-        if(Objects.isNull(alunoVelho)){
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .build();
-        }else{
-            alunoVelho.setNome(alunoNovo.getNome());
-            return Response
-                    .status(Response.Status.OK)
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/filter")
-    public Response filterAlunoBy(@QueryParam("beginning") String beginning){
-        log.info("filtering", beginning);
-        List<AlunoDto> filteredList = mapAlunos.values().stream()
-        .filter((v)->v.getNome().startsWith(beginning)).collect(Collectors.toList());
         return Response
-                .ok(filteredList)
+                .status(Response.Status.CREATED)
+                .entity(response)
                 .build();
     }
 }

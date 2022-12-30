@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
@@ -43,6 +45,8 @@ public class Professor{
         setDateTime(LocalDateTime.now());
     }
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "titular")
+    private Curso curso;
     
 }
 
